@@ -3,6 +3,7 @@ package dev.jamilxt.dailytasktracking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -13,6 +14,12 @@ public class TaskService {
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
+    }
+
+    public List<Task> getTasksByDate(LocalDate date) {
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getDate().equals(date))
+                .toList();
     }
 
     public void saveTask(Task task) {

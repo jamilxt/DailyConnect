@@ -1,10 +1,11 @@
 package dev.jamilxt.dailytasktracking;
 
 import jakarta.persistence.Entity;
-
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 
 @Entity
@@ -14,7 +15,9 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
+
     private String taskType;
     private String taskDetails;
     private String link;
@@ -67,5 +70,17 @@ public class Task {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", date=" + date +
+                ", taskType='" + taskType + '\'' +
+                ", taskDetails='" + taskDetails + '\'' +
+                ", link='" + link + '\'' +
+                ", remarks='" + remarks + '\'' +
+                '}';
     }
 }
