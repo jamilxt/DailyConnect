@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Task Tracker</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Daily Task Tracker</h1>
+
+    <!-- Form to Add New Task -->
+    <form th:action="@{/addTask}" th:object="${task}" method="post" class="mb-4">
+        <div class="row">
+            <div class="col-md-2">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" th:field="*{date}" required>
+            </div>
+            <div class="col-md-2">
+                <label for="taskType" class="form-label">Task Type</label>
+                <select class="form-select" id="taskType" th:field="*{taskType}" required>
+                    <option value="">Select Task Type</option>
+                    <option th:each="type : ${taskTypes}" th:value="${type}" th:text="${type}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="taskDetails" class="form-label">Task Details</label>
+                <input type="text" class="form-control" id="taskDetails" th:field="*{taskDetails}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="link" class="form-label">Link</label>
+                <input type="text" class="form-control" id="link" th:field="*{link}">
+            </div>
+            <div class="col-md-2">
+                <label for="remarks" class="form-label">Remarks</label>
+                <input type="text" class="form-control" id="remarks" th:field="*{remarks}">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Add Task</button>
+    </form>
+
+    <!-- Task Table -->
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Task Type</th>
+            <th>Task Details</th>
+            <th>Link</th>
+            <th>Remarks</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task : ${tasks}">
+            <td th:text="${task.date}"></td>
+            <td th:text="${task.taskType}"></td>
+            <td th:text="${task.taskDetails}"></td>
+            <td th:text="${task.link}"></td>
+            <td th:text="${task.remarks}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Bootstrap 5 JS (Optional, for interactivity) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
