@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller("tasks")
+@Controller
 public class TaskController {
 
     @Autowired
@@ -29,7 +29,7 @@ public class TaskController {
     private static final DateTimeFormatter URL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
-    @GetMapping
+    @GetMapping("tasks")
     public String viewTasks(
             @RequestParam(value = "selectedDate", required = false) String selectedDate,
             Model model) {
@@ -71,7 +71,7 @@ public class TaskController {
         model.addAttribute("currentMonth", yearMonth.getMonth().toString() + " " + yearMonth.getYear());
         model.addAttribute("today", LocalDate.now().format(URL_DATE_FORMATTER));
 
-        return "index";
+        return "tasks";
     }
 
     @PostMapping("/addTask")
@@ -85,7 +85,7 @@ public class TaskController {
             System.out.println("Date from form: " + task.getDate());
         }
         taskService.saveTask(task);
-        return "redirect:/?selectedDate=" + selectedDate;
+        return "redirect:tasks?selectedDate=" + selectedDate;
     }
 
     private List<LocalDate> generateCalendarDays(YearMonth yearMonth) {

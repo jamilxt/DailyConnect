@@ -22,7 +22,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true) // Force redirect to /dashboard
+                        .defaultSuccessUrl("/", true) // Force redirect to /
                         .permitAll()
                 )
                 .logout(logout -> logout

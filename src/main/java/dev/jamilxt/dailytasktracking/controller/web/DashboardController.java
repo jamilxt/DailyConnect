@@ -15,7 +15,7 @@ public class DashboardController {
         this.wordService = wordService;
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/")
     public String dashboard(Model model) {
         model.addAttribute("dailyWord", wordService.getDailyWord());
         model.addAttribute("userCount", 42);

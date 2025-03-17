@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Task Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .calendar-day:hover {
+            background-color: #e9ecef;
+        }
+        .calendar-today {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            color: white;
+        }
+        .calendar-selected {
+            background-color: #10b981; /* Tailwind green-500 */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="ml-64 p-4">
+    <h1 class="text-2xl font-bold mb-4">Daily Task Tracker</h1>
+
+    <!-- Calendar -->
+    <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2" th:text="${currentMonth}"></h3>
+        <table class="table-auto border-collapse w-full max-w-md">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2">Sun</th>
+                <th class="p-2">Mon</th>
+                <th class="p-2">Tue</th>
+                <th class="p-2">Wed</th>
+                <th class="p-2">Thu</th>
+                <th class="p-2">Fri</th>
+                <th class="p-2">Sat</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="week : ${calendarWeeks}">
+                <td th:each="day : ${week}" class="calendar-day border"
+                    th:classappend="${day.isSelected} ? 'calendar-selected' : (day.isToday ? 'calendar-today' : '')"
+                    th:attr="data-formatted-date=${day.formattedDate}">
+                    <span th:text="${day.dayOfMonth}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Form to Add New Task -->
+    <form th:action="@{/addTask}" th:object="${task}" method="post" class="mb-6">
+        <input type="hidden" th:name="selectedDate" th:value="${selectedDate}">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <label for="date" class="block text-gray-700">Date</label>
+                <input type="date" id="date" th:field="*{date}" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="taskType" class="block text-gray-700">Task Type</label>
+                <select id="taskType" th:field="*{taskType}" class="w-full p-2 border rounded" required>
+                    <option value="">Select Task Type</option>
+                    <option th:each="type : ${taskTypes}" th:value="${type}" th:text="${type}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="taskDetails" class="block text-gray-700">Task Details</label>
+                <input type="text" id="taskDetails" th:field="*{taskDetails}" class="w-full p-2 border rounded" required>
+            </div>
+            <div>
+                <label for="link" class="block text-gray-700">Link</label>
+                <input type="text" id="link" th:field="*{link}" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="remarks" class="block text-gray-700">Remarks</label>
+                <input type="text" id="remarks" th:field="*{remarks}" class="w-full p-2 border rounded">
+            </div>
+        </div>
+        <button type="submit" class="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Task</button>
+    </form>
+
+    <!-- Task Table -->
+    <h4 class="text-lg font-semibold mb-2" th:text="'Tasks for ' + ${selectedDateDisplay}"></h4>
+    <table class="w-full bg-white shadow rounded border">
+        <thead class="bg-gray-200">
+        <tr>
+            <th class="p-2 text-left">Date</th>
+            <th class="p-2 text-left">Task Type</th>
+            <th class="p-2 text-left">Task Details</th>
+            <th class="p-2 text-left">Link</th>
+            <th class="p-2 text-left">Remarks</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task : ${tasks}" class="border-t">
+            <td class="p-2" th:text="${task.date}"></td>
+            <td class="p-2" th:text="${task.taskType}"></td>
+            <td class="p-2" th:text="${task.taskDetails}"></td>
+            <td class="p-2" th:text="${task.link}"></td>
+            <td class="p-2" th:text="${task.remarks}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(tasks)}">
+            <td colspan="5" class="p-2 text-center text-gray-500">No tasks for this date.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- JavaScript for Calendar Click Handling -->
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarDays = document.querySelectorAll('.calendar-day');
+        calendarDays.forEach(day => {
+            day.addEventListener('click', function() {
+                const formattedDate = this.getAttribute('data-formatted-date');
+                if (formattedDate) {
+                    window.location.href = '/tasks?selectedDate=' + encodeURIComponent(formattedDate);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
