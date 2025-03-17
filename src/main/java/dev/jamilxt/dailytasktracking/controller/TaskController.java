@@ -1,5 +1,7 @@
-package dev.jamilxt.dailytasktracking;
+package dev.jamilxt.dailytasktracking.controller;
 
+import dev.jamilxt.dailytasktracking.entity.Task;
+import dev.jamilxt.dailytasktracking.servie.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

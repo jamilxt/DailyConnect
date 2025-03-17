@@ -1,4 +1,4 @@
-package dev.jamilxt.dailytasktracking;
+package dev.jamilxt.dailytasktracking.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

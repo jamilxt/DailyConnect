@@ -1,5 +1,7 @@
-package dev.jamilxt.dailytasktracking;
+package dev.jamilxt.dailytasktracking.servie;
 
+import dev.jamilxt.dailytasktracking.entity.Task;
+import dev.jamilxt.dailytasktracking.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
