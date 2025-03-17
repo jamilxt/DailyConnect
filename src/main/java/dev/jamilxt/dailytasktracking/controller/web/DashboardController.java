@@ -27,11 +27,6 @@ public class DashboardController {
         return "notifications";
     }
 
-    @GetMapping("/chat")
-    public String chat() {
-        return "chat";
-    }
-
     @GetMapping("/login")
     public String login() {
         return "login";

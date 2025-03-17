@@ -17,18 +17,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/resources/**").permitAll()
+                        .requestMatchers("/login", "/resources/**", "/webjars/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true) // Force redirect to /
+                        .defaultSuccessUrl("/dashboard", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
-                        .permitAll());
+                        .permitAll())
+                .csrf().ignoringRequestMatchers("/ws/**"); // Disable CSRF for WebSocket
         return http.build();
     }
 
@@ -41,16 +42,17 @@ public class SecurityConfig {
                 .build();
         var user1 = User.withDefaultPasswordEncoder()
                 .username("alice")
-                .password("pass123")
+                .password("password")
                 .roles("USER")
                 .build();
         var user2 = User.withDefaultPasswordEncoder()
                 .username("bob")
-                .password("pass456")
+                .password("password")
+                .roles("USER")
                 .build();
         var user3 = User.withDefaultPasswordEncoder()
                 .username("charlie")
-                .password("pass789")
+                .password("password")
                 .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(admin, user1, user2, user3);
