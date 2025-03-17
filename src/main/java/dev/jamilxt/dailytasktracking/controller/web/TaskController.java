@@ -1,4 +1,4 @@
-package dev.jamilxt.dailytasktracking.controller;
+package dev.jamilxt.dailytasktracking.controller.web;
 
 import dev.jamilxt.dailytasktracking.entity.Task;
 import dev.jamilxt.dailytasktracking.servie.TaskService;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@Controller("tasks")
 public class TaskController {
 
     @Autowired
@@ -29,7 +29,7 @@ public class TaskController {
     private static final DateTimeFormatter URL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
-    @GetMapping("/")
+    @GetMapping
     public String viewTasks(
             @RequestParam(value = "selectedDate", required = false) String selectedDate,
             Model model) {

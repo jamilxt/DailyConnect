@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Chat</title>
+    <script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.4/stomp.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+<div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="ml-64 p-4">
+    <h1 class="text-2xl font-bold mb-4">Chat</h1>
+    <div class="flex space-x-4">
+        <div class="w-1/2 bg-white p-4 rounded shadow">
+            <h2 class="text-xl font-semibold mb-2">Private Chat</h2>
+            <div id="private-messages" class="h-64 overflow-y-auto mb-2"></div>
+            <input id="private-target" type="text" placeholder="Target Username"
+                   class="w-full p-2 border rounded mb-2" />
+            <div class="flex">
+                <input id="private-message" type="text" placeholder="Type a message"
+                       class="w-full p-2 border rounded" />
+                <button onclick="sendPrivateMessage()"
+                        class="ml-2 bg-blue-500 text-white p-2 rounded">Send</button>
+            </div>
+        </div>
+        <div class="w-1/2 bg-white p-4 rounded shadow">
+            <h2 class="text-xl font-semibold mb-2">Group Chat</h2>
+            <div id="group-messages" class="h-64 overflow-y-auto mb-2"></div>
+            <input id="group-id" type="text" placeholder="Group ID"
+                   class="w-full p-2 border rounded mb-2" />
+            <div class="flex">
+                <input id="group-message" type="text" placeholder="Type a message"
+                       class="w-full p-2 border rounded" />
+                <button onclick="sendGroupMessage()"
+                        class="ml-2 bg-green-500 text-white p-2 rounded">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    var username = [[${#authentication != null && #authentication.authenticated ? #authentication.name : 'Guest'}]];
+    var stompClient;
+
+    var socket = new SockJS("/ws");
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function(frame) {
+        stompClient.subscribe("/user/queue/private", function(message) {
+            var msg = JSON.parse(message.body);
+            document.getElementById("private-messages").innerHTML +=
+                "<p class='text-gray-700'><strong>" + msg.sender + ":</strong> " + msg.content + "</p>";
+        });
+    });
+
+    function sendPrivateMessage() {
+        var target = document.getElementById("private-target").value;
+        var content = document.getElementById("private-message").value;
+        var message = {sender: username, content: content, target: target, type: "PRIVATE"};
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
+        document.getElementById("private-message").value = "";
+    }
+
+    function sendGroupMessage() {
+        var groupId = document.getElementById("group-id").value;
+        var content = document.getElementById("group-message").value;
+        var message = {sender: username, content: content, target: groupId, type: "GROUP"};
+        stompClient.subscribe("/topic/group/" + groupId, function(message) {
+            var msg = JSON.parse(message.body);
+            document.getElementById("group-messages").innerHTML +=
+                "<p class='text-gray-700'><strong>" + msg.sender + ":</strong> " + msg.content + "</p>";
+        });
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
+        document.getElementById("group-message").value = "";
+    }
+</script>
+</body>
+</html>

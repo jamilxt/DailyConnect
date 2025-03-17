@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Notifications</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+<div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="ml-64 p-4">
+    <h1 class="text-2xl font-bold mb-4">Notifications</h1>
+    <div id="notifications" class="bg-white p-4 rounded shadow"></div>
+</div>
+<script>
+    var eventSource = new EventSource("/notifications");
+    eventSource.addEventListener("notification", function(event) {
+        document.getElementById("notifications").innerHTML +=
+            "<p class='text-gray-700'>" + event.data + "</p>";
+    });
+</script>
+</body>
+</html>
