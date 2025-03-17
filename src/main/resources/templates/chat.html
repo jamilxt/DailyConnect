@@ -9,18 +9,7 @@
 <body class="bg-gray-100 font-sans">
 <div th:replace="fragments/sidebar :: sidebar"></div>
 <div class="ml-64 p-4 flex space-x-4">
-    <!-- Online Users -->
-    <div class="w-1/4 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-semibold mb-2">Online Users</h2>
-        <ul id="online-users" class="space-y-2">
-            <li th:each="user : ${onlineUsers}"
-                th:text="${user}"
-                class="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
-                onclick="selectUser(this.textContent)"></li>
-        </ul>
-    </div>
-
-    <!-- Chat History List -->
+    <!-- Chat History List (Left Side) -->
     <div class="w-1/4 bg-white p-4 rounded shadow">
         <h2 class="text-xl font-semibold mb-2">Chat History</h2>
         <ul id="history-users" class="space-y-2">
@@ -31,40 +20,34 @@
         </ul>
     </div>
 
-    <!-- Chat Area -->
-    <div class="w-1/2 flex flex-col space-y-4">
-        <!-- Private Chat -->
-        <div class="bg-white p-4 rounded shadow flex-1">
-            <h2 class="text-xl font-semibold mb-2">Private Chat</h2>
-            <div id="private-messages" class="h-64 overflow-y-auto mb-2 p-2 bg-gray-50 rounded"></div>
-            <input id="private-target" type="text" placeholder="Target Username"
-                   class="w-full p-2 border rounded mb-2" readonly />
-            <div class="flex">
-                <input id="private-message" type="text" placeholder="Type a message"
-                       class="w-full p-2 border rounded" />
-                <button onclick="sendPrivateMessage()"
-                        class="ml-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Send</button>
-            </div>
+    <!-- Private Chat (Center) -->
+    <div class="flex-1 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">Private Chat</h2>
+        <div id="private-messages" class="h-96 overflow-y-auto mb-2 p-2 bg-gray-50 rounded"></div>
+        <input id="private-target" type="text" placeholder="Target Username"
+               class="w-full p-2 border rounded mb-2" readonly />
+        <div class="flex">
+            <input id="private-message" type="text" placeholder="Type a message"
+                   class="w-full p-2 border rounded" />
+            <button onclick="sendPrivateMessage()"
+                    class="ml-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Send</button>
         </div>
+    </div>
 
-        <!-- Group Chat -->
-        <div class="bg-white p-4 rounded shadow flex-1">
-            <h2 class="text-xl font-semibold mb-2">Group Chat</h2>
-            <div id="group-messages" class="h-64 overflow-y-auto mb-2 p-2 bg-gray-50 rounded"></div>
-            <input id="group-id" type="text" placeholder="Group ID"
-                   class="w-full p-2 border rounded mb-2" />
-            <div class="flex">
-                <input id="group-message" type="text" placeholder="Type a message"
-                       class="w-full p-2 border rounded" />
-                <button onclick="sendGroupMessage()"
-                        class="ml-2 bg-green-500 text-white p-2 rounded hover:bg-green-600">Send</button>
-            </div>
-        </div>
+    <!-- Online Users (Right Side) -->
+    <div class="w-1/4 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">Online Users</h2>
+        <ul id="online-users" class="space-y-2">
+            <li th:each="user : ${onlineUsers}"
+                th:text="${user}"
+                class="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                onclick="selectUser(this.textContent)"></li>
+        </ul>
     </div>
 </div>
 
 <script th:inline="javascript">
-    var username = /*[[${currentUser}]]*/ 'Guest'; // Use model attribute
+    var username = /*[[${currentUser}]]*/ 'Guest';
     var stompClient;
 
     // Initial data from server
@@ -104,21 +87,6 @@
             stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
             displayPrivateMessage(message);
             document.getElementById("private-message").value = "";
-        }
-    }
-
-    function sendGroupMessage() {
-        var groupId = document.getElementById("group-id").value;
-        var content = document.getElementById("group-message").value;
-        if (groupId && content) {
-            var message = {sender: username, content: content, target: groupId, type: "GROUP"};
-            stompClient.subscribe("/topic/group/" + groupId, function(message) {
-                var msg = JSON.parse(message.body);
-                document.getElementById("group-messages").innerHTML +=
-                    "<p class='text-gray-700'><strong>" + msg.sender + ":</strong> " + msg.content + "</p>";
-            });
-            stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
-            document.getElementById("group-message").value = "";
         }
     }
 

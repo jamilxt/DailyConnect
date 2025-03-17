@@ -31,8 +31,6 @@ public class ChatController {
         if ("PRIVATE".equals(message.getType())) {
             messagingTemplate.convertAndSendToUser(message.getTarget(), "/queue/private", message);
             messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/private", message);
-        } else if ("GROUP".equals(message.getType())) {
-            messagingTemplate.convertAndSend("/topic/group/" + message.getTarget(), message);
         }
         messagingTemplate.convertAndSend("/topic/onlineUsers", chatService.getOnlineUsers());
     }
@@ -48,7 +46,7 @@ public class ChatController {
     public String chatPage(Authentication authentication, Model model) {
         String currentUser = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())
                 ? authentication.getName() : "Guest";
-        model.addAttribute("currentUser", currentUser); // Explicitly pass username
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("onlineUsers", chatService.getOnlineUsers());
         model.addAttribute("historyUsers", chatService.getChatHistoryUsers(currentUser));
         return "chat";
