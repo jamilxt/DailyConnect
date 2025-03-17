@@ -31,6 +31,9 @@ public class ChatController {
         if ("PRIVATE".equals(message.getType())) {
             messagingTemplate.convertAndSendToUser(message.getTarget(), "/queue/private", message);
             messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/private", message);
+            // Update chat history for both users
+            messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/history", chatService.getChatHistoryUsers(message.getSender()));
+            messagingTemplate.convertAndSendToUser(message.getTarget(), "/queue/history", chatService.getChatHistoryUsers(message.getTarget()));
         }
         messagingTemplate.convertAndSend("/topic/onlineUsers", chatService.getOnlineUsers());
     }
@@ -49,6 +52,8 @@ public class ChatController {
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("onlineUsers", chatService.getOnlineUsers());
         model.addAttribute("historyUsers", chatService.getChatHistoryUsers(currentUser));
+        // Broadcast initial online users to ensure all clients are synced
+        messagingTemplate.convertAndSend("/topic/onlineUsers", chatService.getOnlineUsers());
         return "chat";
     }
 }

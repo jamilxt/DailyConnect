@@ -1,30 +1,30 @@
 package dev.jamilxt.dailytasktracking.servie;
 
 import dev.jamilxt.dailytasktracking.model.ChatMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
 
-    // Online users (username -> connection timestamp)
+    private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
     private final Map<String, Long> onlineUsers = new ConcurrentHashMap<>();
-
-    // Chat history (username -> list of messages)
     private final Map<String, List<ChatMessage>> chatHistory = new ConcurrentHashMap<>();
 
     public void userConnected(String username) {
         onlineUsers.put(username, System.currentTimeMillis());
+        logger.debug("User connected: {}", username);
     }
 
     public void userDisconnected(String username) {
         onlineUsers.remove(username);
+        logger.debug("User disconnected: {}", username);
     }
 
     public List<String> getOnlineUsers() {
@@ -32,27 +32,43 @@ public class ChatService {
     }
 
     public void addMessage(ChatMessage message) {
-        String key1 = message.getSender() + "_" + message.getTarget();
-        String key2 = message.getTarget() + "_" + message.getSender();
-
-        // Store for sender
-        chatHistory.computeIfAbsent(key1, k -> new ArrayList<>()).add(message);
-        // Store for target (if private)
-        if ("PRIVATE".equals(message.getType())) {
-            chatHistory.computeIfAbsent(key2, k -> new ArrayList<>()).add(message);
-        }
+        String[] users = new String[]{message.getSender(), message.getTarget()};
+        Arrays.sort(users);
+        String key = users[0] + "_" + users[1];
+        logger.debug("Adding message to chatHistory: key={}", key);
+        chatHistory.computeIfAbsent(key, k -> new ArrayList<>()).add(message);
     }
 
     public List<ChatMessage> getChatHistory(String user1, String user2) {
-        String key = user1 + "_" + user2;
+        String[] users = new String[]{user1, user2};
+        Arrays.sort(users);
+        String key = users[0] + "_" + users[1];
         return chatHistory.getOrDefault(key, Collections.emptyList());
     }
 
     public List<String> getChatHistoryUsers(String currentUser) {
-        return chatHistory.keySet().stream()
-                .filter(key -> key.startsWith(currentUser + "_"))
-                .map(key -> key.substring(currentUser.length() + 1))
-                .distinct()
+        Map<String, ChatMessage> lastMessages = new HashMap<>();
+        chatHistory.forEach((key, messages) -> {
+            if (key.startsWith(currentUser + "_") || key.endsWith("_" + currentUser)) {
+                String otherUser = key.startsWith(currentUser + "_")
+                        ? key.substring(currentUser.length() + 1)
+                        : key.substring(0, key.length() - currentUser.length() - 1);
+                ChatMessage latestMessage = messages.stream()
+                        .max(Comparator.comparing(ChatMessage::getTimestamp))
+                        .orElse(null);
+                if (latestMessage != null) {
+                    lastMessages.put(otherUser, latestMessage);
+                }
+            }
+        });
+
+        List<String> users = lastMessages.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().getTimestamp().compareTo(e1.getValue().getTimestamp()))
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+
+        logger.debug("Chat history keys for {}: {}", currentUser, chatHistory.keySet());
+        logger.debug("Sorted history users for {}: {}", currentUser, users);
+        return users;
     }
 }
