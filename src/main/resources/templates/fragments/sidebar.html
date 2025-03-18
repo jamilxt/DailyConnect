@@ -4,13 +4,21 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
-<div th:fragment="sidebar" class="fixed h-screen w-64 bg-gray-800 text-white p-4">
-    <h2 class="text-xl font-bold mb-6">Admin Panel</h2>
+<div th:fragment="sidebar" class="fixed h-screen w-64 bg-gray-800 text-white p-4 transition-all duration-300 md:w-64 md:left-0" id="sidebar">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold">Admin Panel</h2>
+        <button class="md:hidden text-white focus:outline-none" onclick="toggleSidebar()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
     <ul>
         <li class="mb-4"><a href="/" class="block p-2 hover:bg-gray-700 rounded">Dashboard</a></li>
         <li class="mb-4"><a href="/notifications" class="block p-2 hover:bg-gray-700 rounded">Notifications</a></li>
         <li class="mb-4"><a href="/chat" class="block p-2 hover:bg-gray-700 rounded">Chat</a></li>
         <li class="mb-4"><a href="/tasks" class="block p-2 hover:bg-gray-700 rounded">Daily Task Tracker</a></li>
+        <li class="mb-4"><a href="/finance" class="block p-2 hover:bg-gray-700 rounded">Personal Finance Manager</a></li>
         <li class="mb-4">
             <form th:action="@{/logout}" method="post" class="inline">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -27,5 +35,19 @@
         </p>
     </div>
 </div>
+<!-- Hamburger Menu Button (Visible on Mobile) -->
+<button class="fixed top-4 left-4 md:hidden text-gray-800 focus:outline-none z-50" onclick="toggleSidebar()" id="menu-btn">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+</button>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('-left-64');
+        sidebar.classList.toggle('left-0');
+    }
+</script>
 </body>
 </html>

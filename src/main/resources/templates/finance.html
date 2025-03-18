@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Personal Finance Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+<div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="p-4 md:ml-64 transition-all duration-300">
+    <h1 class="text-2xl font-bold mb-4">Personal Finance Manager</h1>
+
+    <!-- Balance Summary -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+        <h2 class="text-xl font-semibold">Current Balance</h2>
+        <p class="text-2xl" th:classappend="${balance < 0 ? 'text-red-500' : 'text-green-500'}">
+            $<span th:text="${#numbers.formatDecimal(balance, 1, 2)}"></span>
+        </p>
+    </div>
+
+    <!-- Add Transaction Form -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+        <h2 class="text-xl font-semibold mb-2">Add Transaction</h2>
+        <form th:action="@{/finance}" method="post" class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <input type="text" name="description" placeholder="Description" class="p-2 border rounded w-full sm:w-1/3 text-sm" required />
+            <input type="number" name="amount" placeholder="Amount" step="0.01" class="p-2 border rounded w-full sm:w-1/4 text-sm" required />
+            <select name="type" class="p-2 border rounded w-full sm:w-1/4 text-sm">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full sm:w-auto text-sm">Add</button>
+        </form>
+    </div>
+
+    <!-- Transaction List -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">Transactions</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                <tr class="bg-gray-200">
+                    <th class="p-2">Description</th>
+                    <th class="p-2">Amount</th>
+                    <th class="p-2">Type</th>
+                    <th class="p-2">Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transaction : ${transactions}"
+                    th:classappend="${transaction.type == 'expense' ? 'text-red-500' : 'text-green-500'}">
+                    <td class="p-2" th:text="${transaction.description}"></td>
+                    <td class="p-2" th:text="'$' + ${#numbers.formatDecimal(transaction.amount, 1, 2)}"></td>
+                    <td class="p-2" th:text="${transaction.type}"></td>
+                    <td class="p-2 text-sm" th:text="${transaction.timestamp}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(transactions)}">
+                    <td colspan="4" class="p-2 text-center">No transactions yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
