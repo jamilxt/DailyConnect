@@ -103,11 +103,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 For questions or suggestions, reach out to [your-email@example.com](mailto:your-email@example.com).
 ```
-
----
-
-### Notes
-- **Customization**: Replace placeholders like `your-username`, `your-email@example.com`, and adjust the version (`0.0.1-SNAPSHOT`) to match your `pom.xml`.
-- **License**: I mentioned an MIT License; add a `LICENSE` file if you want to formalize it (e.g., copy from [here](https://opensource.org/licenses/MIT)).
-- **WordService**: Assumed it exists for the daily word; if not, let me know, and I’ll adjust the README or provide an implementation.
-- **Paths**: Used `com.example` as the package; update if your actual package differs (e.g., `dev.jamilxt.dailytasktracking`).
