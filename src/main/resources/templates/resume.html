@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resume Builder - DailyConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+<div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="p-4 md:ml-64 transition-all duration-300">
+    <h1 class="text-2xl font-bold mb-4">Resume Builder</h1>
+
+    <!-- Update Portfolio Form -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+        <h2 class="text-xl font-semibold mb-2">Update Your Portfolio</h2>
+        <form th:action="@{/resume/update}" method="post" class="flex flex-col space-y-2">
+            <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="Full Name" class="p-2 border rounded w-full text-sm" required />
+            <input type="email" name="email" th:value="${portfolio.email}" placeholder="Email" class="p-2 border rounded w-full text-sm" required />
+            <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="Phone" class="p-2 border rounded w-full text-sm" required />
+            <textarea name="education" th:text="${portfolio.education}" placeholder="Education (e.g., B.S. in Computer Science, XYZ University, 2020)" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+            <textarea name="experience" th:text="${portfolio.experience}" placeholder="Experience (e.g., Software Engineer at ABC Corp, 2021-2023)" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+            <textarea name="skills" th:text="${portfolio.skills}" placeholder="Skills (e.g., Java, Spring, JavaScript)" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Update</button>
+        </form>
+    </div>
+
+    <!-- Export Resume Section -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">Export Resume</h2>
+        <form th:action="@{/resume/export}" method="get" class="flex space-x-2">
+            <select name="template" class="p-2 border rounded text-sm">
+                <option value="" disabled selected>Select Template</option>
+                <option th:each="template : ${templates}" th:value="${template}" th:text="${template}"></option>
+            </select>
+            <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 text-sm">Export as PDF</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
