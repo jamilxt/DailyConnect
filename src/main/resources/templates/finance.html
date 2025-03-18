@@ -8,13 +8,22 @@
             position: relative;
             height: 100%;
             width: 100%;
-            overflow: hidden; /* Prevent overflow */
+            overflow: hidden;
         }
         #financeChart {
             max-height: 100% !important;
             max-width: 100% !important;
             height: 100% !important;
             width: 100% !important;
+        }
+        #noDataMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            display: none; /* Hidden by default, shown via JavaScript */
         }
     </style>
 </head>
@@ -67,8 +76,8 @@
         <h2 class="text-xl font-semibold mb-2">Spending by Category</h2>
         <div class="chart-container" style="height: 320px; width: 100%;">
             <canvas id="financeChart" th:if="${!#lists.isEmpty(transactions)}" style="height: 320px; width: 100%;"></canvas>
+            <p id="noDataMessage" th:if="${#lists.isEmpty(transactions)}" class="text-gray-500">No expense data available yet.</p>
         </div>
-        <p id="noDataMessage" class="text-center text-gray-500 mt-2" th:unless="${!#lists.isEmpty(transactions)}">No expense data available yet.</p>
     </div>
 
     <!-- Transaction List -->
@@ -122,7 +131,6 @@
 
         const labels = Object.keys(categoryTotals);
         const data = Object.values(categoryTotals);
-
         const ctx = document.getElementById('financeChart')?.getContext('2d');
         const noDataMessage = document.getElementById('noDataMessage');
 
@@ -137,16 +145,17 @@
                     }]
                 },
                 options: {
-                    responsive: false, // Disable auto-resizing
+                    responsive: false,
                     maintainAspectRatio: false,
-                    height: 320, // Match container height
-                    width: '100%', // Match container width
+                    height: 320,
+                    width: '100%',
                     layout: {
                         padding: 10
                     }
                 }
             });
             console.log('Chart initialized with labels:', labels, 'and data:', data);
+            if (noDataMessage) noDataMessage.style.display = 'none'; // Hide message if chart is shown
         } else if (noDataMessage) {
             noDataMessage.style.display = 'block';
             console.log('No expense data to display or canvas not found.');
