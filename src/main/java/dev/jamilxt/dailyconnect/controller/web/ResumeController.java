@@ -1,5 +1,6 @@
 package dev.jamilxt.dailyconnect.controller.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -35,21 +37,22 @@ public class ResumeController {
         String username = authentication.getName();
         Optional<Portfolio> portfolioOptional = portfolioService.getPortfolioByUsername(username);
         Portfolio portfolio = portfolioOptional.orElse(new Portfolio());
-        List<String> templates = Arrays.asList("Modern", "Classic", "Creative");
-        List<String> colors = Arrays.asList("blue", "green", "red", "gray"); // Customizable colors
-        List<String> fonts = Arrays.asList("Arial", "Helvetica", "Times New Roman"); // Customizable fonts
         model.addAttribute("portfolio", portfolio);
-        model.addAttribute("templates", templates);
-        model.addAttribute("colors", colors);
-        model.addAttribute("fonts", fonts);
+        model.addAttribute("projectsJson", portfolio.getProjects() != null ? portfolio.getProjects() : "[]");
+        model.addAttribute("experienceJson", portfolio.getProfessionalExperience() != null ? portfolio.getProfessionalExperience() : "[]");
         return "resume";
     }
 
     @PostMapping("/resume/update")
     public String updatePortfolio(
             @RequestParam("fullName") String fullName,
+            @RequestParam("title") String title,
             @RequestParam("email") String email,
             @RequestParam("phone") String phone,
+            @RequestParam("address") String address,
+            @RequestParam("githubLink") String githubLink,
+            @RequestParam("linkedinLink") String linkedinLink,
+            @RequestParam(value = "photoUrl", required = false) String photoUrl,
             @RequestParam("intro") String intro,
             @RequestParam("skills") String skills,
             @RequestParam("professionalExperience") String professionalExperience,
@@ -61,8 +64,13 @@ public class ResumeController {
         Portfolio portfolio = portfolioOptional.orElse(new Portfolio());
         portfolio.setUsername(username);
         portfolio.setFullName(fullName);
+        portfolio.setTitle(title);
         portfolio.setEmail(email);
         portfolio.setPhone(phone);
+        portfolio.setAddress(address);
+        portfolio.setGithubLink(githubLink);
+        portfolio.setLinkedinLink(linkedinLink);
+        portfolio.setPhotoUrl(photoUrl);
         portfolio.setIntro(intro);
         portfolio.setSkills(skills);
         portfolio.setProfessionalExperience(professionalExperience);
@@ -73,7 +81,7 @@ public class ResumeController {
     }
 
     @GetMapping("/resume/export")
-    public ResponseEntity<byte[]> exportResume(@RequestParam("template") String template, Authentication authentication) throws Exception {
+    public ResponseEntity<byte[]> exportResume(Authentication authentication) throws Exception {
         String username = authentication.getName();
         Optional<Portfolio> portfolioOptional = portfolioService.getPortfolioByUsername(username);
         if (!portfolioOptional.isPresent()) {
@@ -86,60 +94,81 @@ public class ResumeController {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        // ATS-friendly single-column layout
-        document.setMargins(20, 20, 20, 20); // Consistent margins
-        switch (template) {
-            case "Modern":
-                document.add(new Paragraph(new Text(portfolio.getFullName()).setFontSize(18).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("Email: " + portfolio.getEmail() + " | Phone: " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("\n"));
-                addSection(document, "Intro", portfolio.getIntro());
-                addSection(document, "Skills", portfolio.getSkills());
-                addSection(document, "Professional Experience", portfolio.getProfessionalExperience());
-                addSection(document, "Projects", portfolio.getProjects());
-                addSection(document, "Education", portfolio.getEducation());
-                break;
-            case "Classic":
-                document.add(new Paragraph(new Text("Curriculum Vitae").setFontSize(18).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph(portfolio.getFullName()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("Contact: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("\n"));
-                addSection(document, "Introduction", portfolio.getIntro());
-                addSection(document, "Technical Skills", portfolio.getSkills());
-                addSection(document, "Work Experience", portfolio.getProfessionalExperience());
-                addSection(document, "Key Projects", portfolio.getProjects());
-                addSection(document, "Education", portfolio.getEducation());
-                break;
-            case "Creative":
-                document.add(new Paragraph(new Text("My Professional Journey").setFontSize(18).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("I am " + portfolio.getFullName()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("Reach me at: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("\n"));
-                addSection(document, "About Me", portfolio.getIntro());
-                addSection(document, "My Expertise", portfolio.getSkills());
-                addSection(document, "My Career Path", portfolio.getProfessionalExperience());
-                addSection(document, "Projects I’ve Built", portfolio.getProjects());
-                addSection(document, "My Education", portfolio.getEducation());
-                break;
+        document.setMargins(20, 20, 20, 20);
+        document.add(new Paragraph(new Text(portfolio.getFullName()).setFontSize(18).setBold()).setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph(portfolio.getTitle()).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph("\n"));
+
+        // Contact Info (mirroring FlowCV's layout)
+        if (portfolio.getAddress() != null) {
+            document.add(new Paragraph("📍 " + portfolio.getAddress()).setFontSize(10));
         }
+        if (portfolio.getPhone() != null) {
+            document.add(new Paragraph("📞 " + portfolio.getPhone()).setFontSize(10));
+        }
+        if (portfolio.getEmail() != null) {
+            document.add(new Paragraph("📧 " + portfolio.getEmail()).setFontSize(10));
+        }
+        if (portfolio.getGithubLink() != null) {
+            document.add(new Paragraph("🌐 " + portfolio.getGithubLink()).setFontSize(10));
+        }
+        if (portfolio.getLinkedinLink() != null) {
+            document.add(new Paragraph("🔗 " + portfolio.getLinkedinLink()).setFontSize(10));
+        }
+        document.add(new Paragraph("\n"));
+
+        // Sections
+        addSection(document, "INTRO", portfolio.getIntro());
+        addSection(document, "SKILLS", portfolio.getSkills());
+
+        // Professional Experience (parse JSON)
+        if (portfolio.getProfessionalExperience() != null && !portfolio.getProfessionalExperience().isEmpty()) {
+            document.add(new Paragraph("PROFESSIONAL EXPERIENCE").setFontSize(14).setBold());
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, String>> experiences = mapper.readValue(portfolio.getProfessionalExperience(), List.class);
+            for (Map<String, String> exp : experiences) {
+                String period = exp.get("startDate") + " - " + exp.get("endDate");
+                document.add(new Paragraph(exp.get("company")).setFontSize(12).setBold());
+                document.add(new Paragraph(exp.get("role") + " | " + period).setFontSize(10));
+                document.add(new Paragraph("\n"));
+            }
+        }
+
+        // Projects (parse JSON)
+        if (portfolio.getProjects() != null && !portfolio.getProjects().isEmpty()) {
+            document.add(new Paragraph("PROJECTS").setFontSize(14).setBold());
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, String>> projects = mapper.readValue(portfolio.getProjects(), List.class);
+            for (Map<String, String> project : projects) {
+                String period = project.get("startDate") + " - " + project.get("endDate");
+                document.add(new Paragraph(project.get("title")).setFontSize(12).setBold());
+                document.add(new Paragraph(period).setFontSize(10));
+                document.add(new Paragraph(project.get("description")).setFontSize(10));
+                document.add(new Paragraph("\n"));
+            }
+        }
+
+        addSection(document, "EDUCATION", portfolio.getEducation());
 
         document.close();
         byte[] pdfBytes = baos.toByteArray();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "resume-" + template.toLowerCase() + ".pdf");
+        headers.setContentDispositionFormData("attachment", "resume.pdf");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
     private void addSection(Document document, String title, String content) {
-        document.add(new Paragraph(title).setFontSize(14).setBold());
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            document.add(new Paragraph(line.trim()).setFontSize(12));
+        if (content != null && !content.isEmpty()) {
+            document.add(new Paragraph(title).setFontSize(14).setBold());
+            String[] lines = content.split("\n");
+            for (String line : lines) {
+                document.add(new Paragraph(line.trim()).setFontSize(10));
+            }
+            document.add(new Paragraph("\n"));
         }
-        document.add(new Paragraph("\n"));
     }
 }

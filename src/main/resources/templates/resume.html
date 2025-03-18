@@ -3,154 +3,363 @@
 <head>
     <title>Resume Builder - DailyConnect</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        .section { border: 1px solid #e5e7eb; padding: 10px; margin-bottom: 10px; background-color: white; }
-        .preview { border: 1px solid #e5e7eb; padding: 10px; height: 500px; overflow-y: auto; }
-        .draggable { cursor: move; }
-        .tip { font-style: italic; color: #6b7280; font-size: 0.875rem; }
+        .preview { border: 1px solid #e5e7eb; padding: 20px; min-height: 500px; background-color: white; }
+        .section { margin-bottom: 10px; border-radius: 8px; background-color: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        .section-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; font-weight: 500; }
+        .section-header i { font-size: 14px; transition: transform 0.3s; }
+        .section-header .fa-chevron-up { transform: rotate(180deg); }
+        .section-content { display: none; padding: 15px; }
+        .section-content.active { display: block !important; }
+        .contact-info { display: flex; flex-wrap: wrap; gap: 10px; }
+        .contact-info p { margin: 0; }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; }
+        .preview-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+        .entry { border: 1px solid #e5e7eb; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .add-btn { background-color: #e5e7eb; padding: 8px 15px; border-radius: 20px; font-size: 14px; margin-top: 10px; }
+        .ai-btn { background-color: #6b46c1; color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px; margin-top: 10px; }
+        .list-item { margin: 5px 0; }
+        .list-item::before { content: "•"; margin-right: 8px; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
 <div th:replace="fragments/sidebar :: sidebar"></div>
 <div class="p-4 md:ml-64 transition-all duration-300">
-    <h1 class="text-2xl font-bold mb-4">Resume Builder</h1>
-
-    <!-- Editor Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Left Panel: Editing -->
         <div class="bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-2">Build Your Resume</h2>
+            <h2 class="text-xl font-semibold mb-2">Edit Resume</h2>
             <form th:action="@{/resume/update}" method="post" id="resumeForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                    <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="e.g., Jamilur Rahman" class="p-2 border rounded w-full text-sm" required />
-                    <p class="tip">Enter your full name as it appears on professional documents.</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" th:value="${portfolio.email}" placeholder="e.g., jamilxt@gmail.com" class="p-2 border rounded w-full text-sm" required />
-                    <p class="tip">Use a professional email address.</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Phone</label>
-                    <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="e.g., +8801623573153" class="p-2 border rounded w-full text-sm" required />
-                    <p class="tip">Include your country code (e.g., +880).</p>
+                <!-- Personal Info -->
+                <div class="section">
+                    <div class="section-header">
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-2"></i> Personal Info
+                            </span>
+                        <i class="fas fa-chevron-up" id="personal-icon"></i>
+                    </div>
+                    <div class="section-content active">
+                        <div class="space-y-2">
+                            <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="Full Name" class="p-2 border rounded w-full text-sm" required />
+                            <input type="text" name="title" th:value="${portfolio.title}" placeholder="Professional Title (e.g., Sr. Software Engineer)" class="p-2 border rounded w-full text-sm" required />
+                            <input type="email" name="email" th:value="${portfolio.email}" placeholder="Email" class="p-2 border rounded w-full text-sm" required />
+                            <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="Phone" class="p-2 border rounded w-full text-sm" required />
+                            <input type="text" name="address" th:value="${portfolio.address}" placeholder="Address" class="p-2 border rounded w-full text-sm" />
+                            <input type="text" name="githubLink" th:value="${portfolio.githubLink}" placeholder="GitHub Link" class="p-2 border rounded w-full text-sm" />
+                            <input type="text" name="linkedinLink" th:value="${portfolio.linkedinLink}" placeholder="LinkedIn Link" class="p-2 border rounded w-full text-sm" />
+                            <input type="text" name="photoUrl" th:value="${portfolio.photoUrl}" placeholder="Photo URL (optional)" class="p-2 border rounded w-full text-sm" />
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Draggable Sections -->
-                <div id="sections" class="space-y-4">
-                    <div class="section draggable">
-                        <label class="block text-sm font-medium text-gray-700">Intro</label>
-                        <textarea name="intro" th:text="${portfolio.intro}" placeholder="e.g., I'm a backend engineer with 5+ years of experience..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-                        <p class="tip">Write a brief summary of your skills and experience (100-150 words).</p>
+                <!-- Intro -->
+                <div class="section">
+                    <div class="section-header">
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-2"></i> Intro
+                            </span>
+                        <i class="fas fa-chevron-down" id="intro-icon"></i>
                     </div>
-                    <div class="section draggable">
-                        <label class="block text-sm font-medium text-gray-700">Skills</label>
+                    <div class="section-content">
+                        <textarea name="intro" th:text="${portfolio.intro}" placeholder="Write a brief summary of your skills and experience..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+                        <button type="button" class="add-btn">+ Intro</button>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="section">
+                    <div class="section-header">
+                            <span class="flex items-center">
+                                <i class="fas fa-brain mr-2"></i> Skills
+                            </span>
+                        <i class="fas fa-chevron-down" id="skills-icon"></i>
+                    </div>
+                    <div class="section-content">
                         <textarea name="skills" th:text="${portfolio.skills}" placeholder="e.g., Programming Language: Java, Kotlin, JavaScript..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-                        <p class="tip">List your technical and soft skills in categories (e.g., Programming, Cloud).</p>
-                    </div>
-                    <div class="section draggable">
-                        <label class="block text-sm font-medium text-gray-700">Professional Experience</label>
-                        <textarea name="professionalExperience" th:text="${portfolio.professionalExperience}" placeholder="e.g., Brain Station 23 Ltd.\nSr. Software Engineer\nJul 2023 - present" class="p-2 border rounded w-full h-32 text-sm" required></textarea>
-                        <p class="tip">Include job titles, companies, and dates in reverse chronological order.</p>
-                    </div>
-                    <div class="section draggable">
-                        <label class="block text-sm font-medium text-gray-700">Projects</label>
-                        <textarea name="projects" th:text="${portfolio.projects}" placeholder="e.g., Fleet Management System\nOct 2020 - present\nTechnologies: Spring Boot..." class="p-2 border rounded w-full h-32 text-sm" required></textarea>
-                        <p class="tip">Detail key projects with technologies and your role.</p>
-                    </div>
-                    <div class="section draggable">
-                        <label class="block text-sm font-medium text-gray-700">Education</label>
-                        <textarea name="education" th:text="${portfolio.education}" placeholder="e.g., Diploma in Computer Technology\n2014 - 2018..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-                        <p class="tip">List degrees, institutions, and graduation years.</p>
+                        <button type="button" class="ai-btn">AI Skill Suggestion</button>
+                        <button type="button" class="add-btn">+ Skills</button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Template</label>
-                    <select name="template" id="templateSelect" class="p-2 border rounded w-full text-sm">
-                        <option value="" disabled selected>Select Template</option>
-                        <option th:each="template : ${templates}" th:value="${template}" th:text="${template}"></option>
-                    </select>
+                <!-- Professional Experience -->
+                <div class="section">
+                    <div class="section-header">
+                            <span class="flex items-center">
+                                <i class="fas fa-briefcase mr-2"></i> Professional Experience
+                            </span>
+                        <i class="fas fa-chevron-down" id="experience-icon"></i>
+                    </div>
+                    <div class="section-content">
+                        <div id="experienceEntries" class="space-y-2"></div>
+                        <button type="button" onclick="addExperienceEntry()" class="add-btn">+ Professional Experience</button>
+                        <input type="hidden" name="professionalExperience" id="experienceJson" th:value="${portfolio.professionalExperience}" />
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Color</label>
-                    <select name="color" id="colorSelect" class="p-2 border rounded w-full text-sm">
-                        <option value="" disabled selected>Select Color</option>
-                        <option th:each="color : ${colors}" th:value="${color}" th:text="${color}"></option>
-                    </select>
+
+                <!-- Projects -->
+                <div class="section">
+                    <div class="section-header">
+                            <span class="flex items-center">
+                                <i class="fas fa-folder mr-2"></i> Projects
+                            </span>
+                        <i class="fas fa-chevron-down" id="projects-icon"></i>
+                    </div>
+                    <div class="section-content">
+                        <div id="projectEntries" class="space-y-2"></div>
+                        <button type="button" onclick="addProjectEntry()" class="add-btn">+ Projects</button>
+                        <input type="hidden" name="projects" id="projectsJson" th:value="${portfolio.projects}" />
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Font</label>
-                    <select name="font" id="fontSelect" class="p-2 border rounded w-full text-sm">
-                        <option value="" disabled selected>Select Font</option>
-                        <option th:each="font : ${fonts}" th:value="${font}" th:text="${font}"></option>
-                    </select>
+
+                <!-- Education -->
+                <div class="section">
+                    <div class="section-header">
+                            <span class="flex items-center">
+                                <i class="fas fa-graduation-cap mr-2"></i> Education
+                            </span>
+                        <i class="fas fa-chevron-down" id="education-icon"></i>
+                    </div>
+                    <div class="section-content">
+                        <textarea name="education" th:text="${portfolio.education}" placeholder="e.g., Diploma in Computer Technology..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+                        <button type="button" class="add-btn">+ Education</button>
+                    </div>
                 </div>
-                <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Update & Preview</button>
+
+                <div class="flex space-x-2">
+                    <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Save</button>
+                </div>
             </form>
         </div>
 
-        <!-- Live Preview Section -->
-        <div class="bg-white p-4 rounded shadow preview" id="preview">
-            <h2 class="text-xl font-semibold mb-2">Live Preview</h2>
-            <div id="previewContent"></div>
+        <!-- Right Panel: Live Preview -->
+        <div class="preview">
+            <div class="preview-header">
+                <div>
+                    <h2 class="text-xl font-bold" id="previewFullName"></h2>
+                    <p id="previewTitle" class="text-sm text-gray-600"></p>
+                    <div class="contact-info">
+                        <p id="previewAddress"></p>
+                        <p id="previewPhone"></p>
+                        <p id="previewEmail"></p>
+                        <p id="previewGithub"></p>
+                        <p id="previewLinkedin"></p>
+                    </div>
+                </div>
+                <img id="previewPhoto" class="preview-photo" style="display: none;" />
+            </div>
+            <hr class="my-4">
+            <div id="previewIntro"></div>
+            <div id="previewSkills"></div>
+            <div id="previewExperience"></div>
+            <div id="previewProjects"></div>
+            <div id="previewEducation"></div>
         </div>
     </div>
 
-    <!-- Export Resume Section -->
+    <!-- Download Button -->
     <div class="bg-white p-4 rounded shadow mt-4">
-        <h2 class="text-xl font-semibold mb-2">Export Resume</h2>
-        <form th:action="@{/resume/export}" method="get" class="flex space-x-2">
-            <select name="template" class="p-2 border rounded text-sm">
-                <option value="" disabled selected>Select Template</option>
-                <option th:each="template : ${templates}" th:value="${template}" th:text="${template}"></option>
-            </select>
-            <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 text-sm">Export as PDF (Free)</button>
+        <form th:action="@{/resume/export}" method="get">
+            <button type="submit" class="bg-purple-500 text-white p-2 rounded hover:bg-purple-600 text-sm">Download PDF</button>
         </form>
-        <p class="text-sm text-gray-600 mt-2">Your first resume is free forever, with no watermarks or hidden fees.</p>
     </div>
 </div>
 
+<!-- Define initial data as JavaScript variables -->
+<script th:inline="javascript">
+    const initialProjects = /*[[${portfolio.projects}]]*/ '[]';
+    const initialExperiences = /*[[${portfolio.professionalExperience}]]*/ '[]';
+</script>
+
 <script>
-    // Initialize SortableJS for drag-and-drop
-    new Sortable(document.getElementById('sections'), {
-        animation: 150,
-        onEnd: function (evt) {
-            updatePreview();
+    // Parse initial data with fallback
+    const projectsData = initialProjects ? JSON.parse(initialProjects) : [];
+    const experiencesData = initialExperiences ? JSON.parse(initialExperiences) : [];
+
+    // Load existing entries
+    projectsData.forEach(project => addProjectEntry(project));
+    experiencesData.forEach(exp => addExperienceEntry(exp));
+
+    // Toggle section visibility
+    document.querySelectorAll('.section-header').forEach(header => {
+        header.addEventListener('click', function () {
+            const content = this.nextElementSibling;
+            console.log('Clicked header:', this, 'Next sibling:', content, 'Classes:', content?.classList);
+            if (content && content.classList.contains('section-content')) {
+                const isActive = content.classList.toggle('active');
+                console.log('Toggled active:', isActive, 'Content style:', content.style.display);
+                const icon = this.querySelector('i[id$="-icon"]');
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                } else {
+                    console.error('No icon found in header:', this);
+                }
+            } else {
+                console.error('No section-content found after section-header:', this);
+            }
+        });
+    });
+
+    // Set initial state (Personal Info open, others collapsed)
+    document.querySelectorAll('.section').forEach(section => {
+        const content = section.querySelector('.section-content');
+        const header = section.querySelector('.section-header');
+        if (content && header) {
+            const sectionId = header.textContent.trim().split(' ')[0]; // Extract section name (e.g., "Intro")
+            if (sectionId === 'Personal') {
+                content.classList.add('active');
+            } else {
+                content.classList.remove('active');
+            }
+            const icon = header.querySelector('i[id$="-icon"]');
+            if (icon) {
+                if (content.classList.contains('active')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            } else {
+                console.error('No icon found in section:', section);
+            }
+        } else {
+            console.error('Invalid section structure:', section);
         }
     });
 
-    // Live Preview
-    function updatePreview() {
-        const form = document.getElementById('resumeForm');
-        const preview = document.getElementById('previewContent');
-        let html = `<h3 style="text-align: center; font-size: 18px; font-weight: bold;">${form.fullName.value}</h3>`;
-        html += `<p style="text-align: center;">Email: ${form.email.value} | Phone: ${form.phone.value}</p>`;
-        html += '<hr>';
-
-        document.querySelectorAll('#sections .section').forEach(section => {
-            const label = section.querySelector('label').textContent.replace(':', '');
-            const textarea = section.querySelector('textarea');
-            if (textarea.value.trim()) {
-                html += `<h4 style="font-size: 14px; font-weight: bold;">${label}</h4>`;
-                html += `<p>${textarea.value.replace(/\n/g, '<br>')}</p>`;
-                html += '<hr>';
-            }
-        });
-
-        const template = document.getElementById('templateSelect').value;
-        const color = document.getElementById('colorSelect').value || 'black';
-        const font = document.getElementById('fontSelect').value || 'Arial';
-        preview.innerHTML = `<div style="color: ${color}; font-family: ${font};">${html}</div>`;
+    // Add new project entry
+    function addProjectEntry(data = {}) {
+        const entry = document.createElement('div');
+        entry.className = 'entry';
+        entry.innerHTML = `
+                <input type="text" placeholder="Project Title" value="${data.title || ''}" class="p-2 border rounded w-full text-sm mb-2" data-field="title" />
+                <div class="flex space-x-2 mb-2">
+                    <input type="text" placeholder="Start Date (MM/YYYY)" value="${data.startDate || ''}" class="p-2 border rounded w-1/2 text-sm" data-field="startDate" />
+                    <input type="text" placeholder="End Date (MM/YYYY or Present)" value="${data.endDate || ''}" class="p-2 border rounded w-1/2 text-sm" data-field="endDate" />
+                </div>
+                <textarea placeholder="Description" class="p-2 border rounded w-full h-16 text-sm mb-2" data-field="description">${data.description || ''}</textarea>
+                <button type="button" onclick="this.parentElement.remove(); updateJsonAndPreview('projects');" class="text-red-500 text-sm">Remove</button>
+            `;
+        document.getElementById('projectEntries').appendChild(entry);
+        updateJsonAndPreview('projects');
     }
 
-    // Update preview on input change
-    document.querySelectorAll('#resumeForm input, #resumeForm textarea, #resumeForm select').forEach(element => {
-        element.addEventListener('input', updatePreview);
-    });
-    document.querySelectorAll('#templateSelect, #colorSelect, #fontSelect').forEach(element => {
-        element.addEventListener('change', updatePreview);
+    // Add new experience entry
+    function addExperienceEntry(data = {}) {
+        const entry = document.createElement('div');
+        entry.className = 'entry';
+        entry.innerHTML = `
+                <input type="text" placeholder="Company" value="${data.company || ''}" class="p-2 border rounded w-full text-sm mb-2" data-field="company" />
+                <input type="text" placeholder="Role" value="${data.role || ''}" class="p-2 border rounded w-full text-sm mb-2" data-field="role" />
+                <div class="flex space-x-2 mb-2">
+                    <input type="text" placeholder="Start Date (MM/YYYY)" value="${data.startDate || ''}" class="p-2 border rounded w-1/2 text-sm" data-field="startDate" />
+                    <input type="text" placeholder="End Date (MM/YYYY or Present)" value="${data.endDate || ''}" class="p-2 border rounded w-1/2 text-sm" data-field="endDate" />
+                </div>
+                <button type="button" onclick="this.parentElement.remove(); updateJsonAndPreview('experience');" class="text-red-500 text-sm">Remove</button>
+            `;
+        document.getElementById('experienceEntries').appendChild(entry);
+        updateJsonAndPreview('experience');
+    }
+
+    // Update JSON and preview
+    function updateJsonAndPreview(type) {
+        if (type === 'projects') {
+            const projects = Array.from(document.querySelectorAll('#projectEntries .entry')).map(entry => {
+                const data = {};
+                entry.querySelectorAll('[data-field]').forEach(input => {
+                    data[input.dataset.field] = input.value.trim();
+                });
+                return data.title ? data : null;
+            }).filter(p => p);
+            document.getElementById('projectsJson').value = JSON.stringify(projects);
+            updatePreview();
+        } else if (type === 'experience') {
+            const experiences = Array.from(document.querySelectorAll('#experienceEntries .entry')).map(entry => {
+                const data = {};
+                entry.querySelectorAll('[data-field]').forEach(input => {
+                    data[input.dataset.field] = input.value.trim();
+                });
+                return data.company ? data : null;
+            }).filter(e => e);
+            document.getElementById('experienceJson').value = JSON.stringify(experiences);
+            updatePreview();
+        }
+    }
+
+    // Update live preview
+    function updatePreview() {
+        const form = document.getElementById('resumeForm');
+        document.getElementById('previewFullName').textContent = form.fullName ? form.fullName.value || '' : '';
+        document.getElementById('previewTitle').textContent = form.title ? form.title.value || '' : '';
+        document.getElementById('previewAddress').innerHTML = form.address ? (form.address.value ? `📍 ${form.address.value}` : '') : '';
+        document.getElementById('previewPhone').innerHTML = form.phone ? (form.phone.value ? `📞 ${form.phone.value}` : '') : '';
+        document.getElementById('previewEmail').innerHTML = form.email ? (form.email.value ? `📧 ${form.email.value}` : '') : '';
+        document.getElementById('previewGithub').innerHTML = form.githubLink ? (form.githubLink.value ? `🌐 ${form.githubLink.value}` : '') : '';
+        document.getElementById('previewLinkedin').innerHTML = form.linkedinLink ? (form.linkedinLink.value ? `🔗 ${form.linkedinLink.value}` : '') : '';
+
+        const photo = form.photoUrl ? form.photoUrl.value : '';
+        const photoElement = document.getElementById('previewPhoto');
+        if (photo) {
+            photoElement.src = photo;
+            photoElement.style.display = 'block';
+        } else {
+            photoElement.style.display = 'none';
+        }
+
+        // Preview Intro
+        document.getElementById('previewIntro').innerHTML = form.intro.value ? `<h3 class="text-lg font-bold">Intro</h3><p>${form.intro.value.replace(/\n/g, '<br>')}</p>` : '';
+
+        // Preview Skills
+        let skillsHtml = form.skills.value ? '<h3 class="text-lg font-bold">Skills</h3>' : '';
+        if (form.skills.value) {
+            const skillsGroups = form.skills.value.split(/\n(?=\w)/);
+            skillsGroups.forEach(group => {
+                const [title, ...items] = group.split('\n');
+                if (title && items.length) {
+                    skillsHtml += `<p><strong>${title.trim()}</strong></p>`;
+                    items.forEach(item => {
+                        if (item.trim()) {
+                            skillsHtml += `<p class="list-item">${item.trim()}</p>`;
+                        }
+                    });
+                }
+            });
+        }
+        document.getElementById('previewSkills').innerHTML = skillsHtml;
+
+        // Preview Experience
+        let experienceHtml = form.professionalExperience.value ? '<h3 class="text-lg font-bold">Professional Experience</h3>' : '';
+        const experiences = JSON.parse(form.professionalExperience.value || '[]');
+        experiences.forEach(exp => {
+            if (exp.company && exp.role) {
+                experienceHtml += `<p class="list-item"><strong>${exp.role}, ${exp.company}</strong></p><p>${exp.startDate} - ${exp.endDate}</p>`;
+            }
+        });
+        document.getElementById('previewExperience').innerHTML = experienceHtml;
+
+        // Preview Projects
+        let projectsHtml = form.projects.value ? '<h3 class="text-lg font-bold">Projects</h3>' : '';
+        const projects = JSON.parse(form.projects.value || '[]');
+        projects.forEach(project => {
+            if (project.title) {
+                projectsHtml += `<p class="list-item"><strong>${project.title}</strong></p><p>${project.startDate} - ${project.endDate}</p><p>${project.description.replace(/\n/g, '<br>')}</p>`;
+            }
+        });
+        document.getElementById('previewProjects').innerHTML = projectsHtml;
+
+        // Preview Education
+        document.getElementById('previewEducation').innerHTML = form.education.value ? `<h3 class="text-lg font-bold">Education</h3><p class="list-item">${form.education.value.replace(/\n/g, '<br>')}</p>` : '';
+    }
+
+    // Attach event listeners for live updates
+    document.querySelectorAll('#resumeForm input, #resumeForm textarea').forEach(element => {
+        element.addEventListener('input', () => {
+            updateJsonAndPreview('projects');
+            updateJsonAndPreview('experience');
+            updatePreview();
+        });
     });
 
     // Initial preview
