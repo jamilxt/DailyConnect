@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Blog - DailyConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+<div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="p-4 md:ml-64 transition-all duration-300">
+    <h1 class="text-2xl font-bold mb-4">Blog</h1>
+
+    <!-- Add Blog Post Form -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+        <h2 class="text-xl font-semibold mb-2">Create New Post</h2>
+        <form th:action="@{/blog}" method="post" class="flex flex-col space-y-2">
+            <input type="text" name="title" placeholder="Post Title" class="p-2 border rounded w-full text-sm" required />
+            <textarea name="content" placeholder="Post Content" class="p-2 border rounded w-full h-32 text-sm" required></textarea>
+            <select name="category" class="p-2 border rounded w-full text-sm">
+                <option value="" disabled selected>Select Category</option>
+                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+            </select>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Publish</button>
+        </form>
+    </div>
+
+    <!-- Blog Posts List -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">Posts</h2>
+        <div class="space-y-4" th:each="post : ${blogPosts}">
+            <div class="p-4 border rounded">
+                <h3 class="text-lg font-semibold" th:text="${post.title}"></h3>
+                <p class="text-gray-600 text-sm" th:text="${post.timestamp}"></p>
+                <p class="text-gray-700" th:text="${post.content}"></p>
+                <span class="text-sm text-blue-500" th:text="'Category: ' + ${post.category}"></span>
+            </div>
+        </div>
+        <p th:if="${#lists.isEmpty(blogPosts)}" class="p-2 text-center">No posts yet.</p>
+    </div>
+</div>
+</body>
+</html>
