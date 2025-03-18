@@ -2,6 +2,10 @@
 
 DailyConnect is a Spring Boot web application designed to facilitate real-time communication, task tracking, and daily inspiration for users. It features a responsive UI, secure authentication, and WebSocket-based chat functionality, making it ideal for teams or individuals looking to stay connected and organized.
 
+## Live Demo
+The application is deployed and accessible at:  
+[**https://dailyconnect.onrender.com**](https://dailyconnect.onrender.com)
+
 ## Features
 - **Real-Time Chat**: Private messaging with online user tracking and chat history sorted by last message time.
 - **Dashboard**: Displays a daily word and user count (currently hardcoded).
