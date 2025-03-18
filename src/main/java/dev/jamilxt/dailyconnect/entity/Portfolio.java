@@ -16,22 +16,27 @@ public class Portfolio {
     private String fullName;
     private String email;
     private String phone;
-    private String education;
-    private String experience;
-    private String skills;
+    private String intro; // New field for Intro section
+    private String skills; // Programming Languages, Databases, Cloud, Frameworks, etc.
+    private String professionalExperience; // Work history
+    private String projects; // Project details
+    private String education; // Education details
 
     // Default constructor
     public Portfolio() {}
 
     // Parameterized constructor
-    public Portfolio(String username, String fullName, String email, String phone, String education, String experience, String skills) {
+    public Portfolio(String username, String fullName, String email, String phone, String intro, String skills,
+                     String professionalExperience, String projects, String education) {
         this.username = username;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
-        this.education = education;
-        this.experience = experience;
+        this.intro = intro;
         this.skills = skills;
+        this.professionalExperience = professionalExperience;
+        this.projects = projects;
+        this.education = education;
     }
 
     // Getters and Setters
@@ -75,20 +80,12 @@ public class Portfolio {
         this.phone = phone;
     }
 
-    public String getEducation() {
-        return education;
+    public String getIntro() {
+        return intro;
     }
 
-    public void setEducation(String education) {
-        this.education = education;
-    }
-
-    public String getExperience() {
-        return experience;
-    }
-
-    public void setExperience(String experience) {
-        this.experience = experience;
+    public void setIntro(String intro) {
+        this.intro = intro;
     }
 
     public String getSkills() {
@@ -97,5 +94,29 @@ public class Portfolio {
 
     public void setSkills(String skills) {
         this.skills = skills;
+    }
+
+    public String getProfessionalExperience() {
+        return professionalExperience;
+    }
+
+    public void setProfessionalExperience(String professionalExperience) {
+        this.professionalExperience = professionalExperience;
+    }
+
+    public String getProjects() {
+        return projects;
+    }
+
+    public void setProjects(String projects) {
+        this.projects = projects;
+    }
+
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
     }
 }

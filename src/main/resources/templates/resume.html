@@ -12,13 +12,39 @@
     <!-- Update Portfolio Form -->
     <div class="bg-white p-4 rounded shadow mb-4">
         <h2 class="text-xl font-semibold mb-2">Update Your Portfolio</h2>
-        <form th:action="@{/resume/update}" method="post" class="flex flex-col space-y-2">
-            <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="Full Name" class="p-2 border rounded w-full text-sm" required />
-            <input type="email" name="email" th:value="${portfolio.email}" placeholder="Email" class="p-2 border rounded w-full text-sm" required />
-            <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="Phone" class="p-2 border rounded w-full text-sm" required />
-            <textarea name="education" th:text="${portfolio.education}" placeholder="Education (e.g., B.S. in Computer Science, XYZ University, 2020)" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-            <textarea name="experience" th:text="${portfolio.experience}" placeholder="Experience (e.g., Software Engineer at ABC Corp, 2021-2023)" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-            <textarea name="skills" th:text="${portfolio.skills}" placeholder="Skills (e.g., Java, Spring, JavaScript)" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+        <form th:action="@{/resume/update}" method="post" class="flex flex-col space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="e.g., Jamilur Rahman" class="p-2 border rounded w-full text-sm" required />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" th:value="${portfolio.email}" placeholder="e.g., jamilxt@gmail.com" class="p-2 border rounded w-full text-sm" required />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Phone</label>
+                <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="e.g., +8801623573153" class="p-2 border rounded w-full text-sm" required />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Intro</label>
+                <textarea name="intro" th:text="${portfolio.intro}" placeholder="e.g., I'm a backend engineer with 5+ years of experience..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Skills</label>
+                <textarea name="skills" th:text="${portfolio.skills}" placeholder="e.g., Programming Language: Java, Kotlin, JavaScript, PHP\nDatabase: MSSQL, MySQL, PostgreSQL, SQLite\nCloud: Azure (VM, Spring Cloud, Azure DevOps)\nFramework: Spring Boot, React, Angular" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Professional Experience</label>
+                <textarea name="professionalExperience" th:text="${portfolio.professionalExperience}" placeholder="e.g., Brain Station 23 Ltd.\nSr. Software Engineer\nJul 2023 - present\nSoftware Engineer\nJan 2022 - Jun 2023" class="p-2 border rounded w-full h-32 text-sm" required></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Projects</label>
+                <textarea name="projects" th:text="${portfolio.projects}" placeholder="e.g., Fleet Management System\nOct 2020 - present\nTechnologies: Spring Boot, Azure Spring Cloud, MSSQL, Redis\nRole: Worked as a Backend Engineer..." class="p-2 border rounded w-full h-32 text-sm" required></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Education</label>
+                <textarea name="education" th:text="${portfolio.education}" placeholder="e.g., Diploma in Computer Technology\n2014 - 2018 | Chittagong, Bangladesh\nBangladesh Sweden Polytechnic Institute" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+            </div>
             <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Update</button>
         </form>
     </div>

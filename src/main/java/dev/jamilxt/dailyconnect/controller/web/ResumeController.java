@@ -46,9 +46,11 @@ public class ResumeController {
             @RequestParam("fullName") String fullName,
             @RequestParam("email") String email,
             @RequestParam("phone") String phone,
-            @RequestParam("education") String education,
-            @RequestParam("experience") String experience,
+            @RequestParam("intro") String intro,
             @RequestParam("skills") String skills,
+            @RequestParam("professionalExperience") String professionalExperience,
+            @RequestParam("projects") String projects,
+            @RequestParam("education") String education,
             Authentication authentication) {
         String username = authentication.getName();
         Optional<Portfolio> portfolioOptional = portfolioService.getPortfolioByUsername(username);
@@ -57,9 +59,11 @@ public class ResumeController {
         portfolio.setFullName(fullName);
         portfolio.setEmail(email);
         portfolio.setPhone(phone);
-        portfolio.setEducation(education);
-        portfolio.setExperience(experience);
+        portfolio.setIntro(intro);
         portfolio.setSkills(skills);
+        portfolio.setProfessionalExperience(professionalExperience);
+        portfolio.setProjects(projects);
+        portfolio.setEducation(education);
         portfolioService.savePortfolio(portfolio);
         return "redirect:/resume";
     }
@@ -81,39 +85,51 @@ public class ResumeController {
         // Customize based on template
         switch (template) {
             case "Modern":
-                document.add(new Paragraph(new Text("Resume").setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("Name: " + portfolio.getFullName()).setFontSize(12));
-                document.add(new Paragraph("Email: " + portfolio.getEmail()).setFontSize(12));
-                document.add(new Paragraph("Phone: " + portfolio.getPhone()).setFontSize(12));
-                document.add(new Paragraph("Education").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getEducation()));
-                document.add(new Paragraph("Experience").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getExperience()));
+                document.add(new Paragraph(new Text(portfolio.getFullName()).setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("Email: " + portfolio.getEmail() + " | Phone: " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("\n")); // Spacer
+                document.add(new Paragraph("Intro").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getIntro()));
                 document.add(new Paragraph("Skills").setFontSize(14).setBold());
                 document.add(new Paragraph(portfolio.getSkills()));
+                document.add(new Paragraph("Professional Experience").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getProfessionalExperience()));
+                document.add(new Paragraph("Projects").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getProjects()));
+                document.add(new Paragraph("Education").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getEducation()));
                 break;
             case "Classic":
                 document.add(new Paragraph(new Text("Curriculum Vitae").setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("Full Name: " + portfolio.getFullName()).setFontSize(12));
-                document.add(new Paragraph("Contact Email: " + portfolio.getEmail()).setFontSize(12));
-                document.add(new Paragraph("Phone Number: " + portfolio.getPhone()).setFontSize(12));
-                document.add(new Paragraph("Education History").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getEducation()));
-                document.add(new Paragraph("Work Experience").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getExperience()));
-                document.add(new Paragraph("Skills & Expertise").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getFullName()).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("Contact: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("\n")); // Spacer
+                document.add(new Paragraph("Introduction").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getIntro()));
+                document.add(new Paragraph("Technical Skills").setFontSize(14).setBold());
                 document.add(new Paragraph(portfolio.getSkills()));
+                document.add(new Paragraph("Work Experience").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getProfessionalExperience()));
+                document.add(new Paragraph("Key Projects").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getProjects()));
+                document.add(new Paragraph("Education").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getEducation()));
                 break;
             case "Creative":
                 document.add(new Paragraph(new Text("My Professional Journey").setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("I am " + portfolio.getFullName()).setFontSize(12));
-                document.add(new Paragraph("Reach me at: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setFontSize(12));
+                document.add(new Paragraph("I am " + portfolio.getFullName()).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("Reach me at: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("\n")); // Spacer
+                document.add(new Paragraph("About Me").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getIntro()));
+                document.add(new Paragraph("My Expertise").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getSkills()));
+                document.add(new Paragraph("My Career Path").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getProfessionalExperience()));
+                document.add(new Paragraph("Projects I’ve Built").setFontSize(14).setBold());
+                document.add(new Paragraph(portfolio.getProjects()));
                 document.add(new Paragraph("My Education").setFontSize(14).setBold());
                 document.add(new Paragraph(portfolio.getEducation()));
-                document.add(new Paragraph("My Career Path").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getExperience()));
-                document.add(new Paragraph("What I Bring to the Table").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getSkills()));
                 break;
             default:
                 document.add(new Paragraph("Invalid template selected."));
