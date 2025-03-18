@@ -17,6 +17,20 @@
         </p>
     </div>
 
+    <!-- Budget Section -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+        <h2 class="text-xl font-semibold mb-2">Monthly Budget</h2>
+        <p>Budget: $<span th:text="${#numbers.formatDecimal(budget, 1, 2)}"></span></p>
+        <p>Expenses this month: $<span th:text="${#numbers.formatDecimal(monthlyExpenses, 1, 2)}"></span></p>
+        <p th:classappend="${monthlyExpenses > budget ? 'text-red-500' : 'text-green-500'}">
+            Remaining: $<span th:text="${#numbers.formatDecimal(budget - monthlyExpenses, 1, 2)}"></span>
+        </p>
+        <form th:action="@{/finance/budget}" method="post" class="mt-2 flex space-x-2">
+            <input type="number" name="budget" placeholder="Set Budget" step="0.01" class="p-2 border rounded text-sm" required />
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 text-sm">Set</button>
+        </form>
+    </div>
+
     <!-- Add Transaction Form -->
     <div class="bg-white p-4 rounded shadow mb-4">
         <h2 class="text-xl font-semibold mb-2">Add Transaction</h2>
@@ -27,13 +41,26 @@
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
+            <select name="category" class="p-2 border rounded w-full sm:w-1/4 text-sm">
+                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+            </select>
             <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full sm:w-auto text-sm">Add</button>
         </form>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="bg-white p-4 rounded shadow mb-4 h-96">
+        <h2 class="text-xl font-semibold mb-2">Spending by Category</h2>
+        <div class="relative w-full h-full">
+            <canvas id="financeChart" class="w-full h-full"></canvas>
+        </div>
+        <p id="noDataMessage" class="text-center text-gray-500 mt-2 hidden">No expense data available yet.</p>
     </div>
 
     <!-- Transaction List -->
     <div class="bg-white p-4 rounded shadow">
         <h2 class="text-xl font-semibold mb-2">Transactions</h2>
+        <a href="/finance/export" class="inline-block bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-2 text-sm">Export as CSV</a>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
@@ -41,6 +68,7 @@
                     <th class="p-2">Description</th>
                     <th class="p-2">Amount</th>
                     <th class="p-2">Type</th>
+                    <th class="p-2">Category</th>
                     <th class="p-2">Date</th>
                 </tr>
                 </thead>
@@ -50,15 +78,75 @@
                     <td class="p-2" th:text="${transaction.description}"></td>
                     <td class="p-2" th:text="'$' + ${#numbers.formatDecimal(transaction.amount, 1, 2)}"></td>
                     <td class="p-2" th:text="${transaction.type}"></td>
+                    <td class="p-2" th:text="${transaction.category}"></td>
                     <td class="p-2 text-sm" th:text="${transaction.timestamp}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(transactions)}">
-                    <td colspan="4" class="p-2 text-center">No transactions yet.</td>
+                    <td colspan="5" class="p-2 text-center">No transactions yet.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<!-- Load Chart.js and initialize chart at the end -->
+<script src="/js/chart.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const transactions = /*[[${transactions}]]*/ [];
+        console.log('Raw Transactions:', transactions);
+
+        const categoryTotals = {};
+        transactions.forEach(t => {
+            console.log('Processing Transaction:', t);
+            if (t.type && t.type.toLowerCase() === 'expense') {
+                categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+            }
+        });
+        console.log('Category Totals:', categoryTotals);
+
+        const labels = Object.keys(categoryTotals).length > 0 ? Object.keys(categoryTotals) : ['No Data'];
+        const data = Object.values(categoryTotals).length > 0 ? Object.values(categoryTotals) : [1];
+        console.log('Chart Labels:', labels);
+        console.log('Chart Data:', data);
+
+        const ctx = document.getElementById('financeChart').getContext('2d');
+        const noDataMessage = document.getElementById('noDataMessage');
+
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded!');
+            return;
+        }
+
+        // Always create a new chart instance
+        try {
+            const chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: labels[0] === 'No Data' ? ['#E5E7EB'] : ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            console.log('Chart initialized with data:', data);
+        } catch (e) {
+            console.error('Chart initialization failed:', e);
+        }
+
+        if (labels[0] === 'No Data') {
+            noDataMessage.classList.remove('hidden');
+        } else {
+            noDataMessage.classList.add('hidden');
+        }
+    });
+</script>
 </body>
 </html>
