@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>dev.jamilxt</groupId>
-    <artifactId>daily-task-tracking</artifactId>
+    <artifactId>dailyconnect</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>daily-task-tracking</name>
-    <description>daily-task-tracking</description>
+    <name>DailyConnect</name>
+    <description>DailyConnect is a Spring Boot web application designed to facilitate real-time communication, task tracking, and daily inspiration for users. It features a responsive UI, secure authentication, and WebSocket-based chat functionality, making it ideal for teams or individuals looking to stay connected and organized.</description>
     <url/>
     <licenses>
         <license/>

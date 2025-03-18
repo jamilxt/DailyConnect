@@ -1,7 +1,6 @@
-package dev.jamilxt.dailytasktracking.controller.web;
+package dev.jamilxt.dailyconnect.controller.web;
 
-import dev.jamilxt.dailytasktracking.servie.WordService;
-import org.springframework.security.core.Authentication;
+import dev.jamilxt.dailyconnect.servie.WordService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

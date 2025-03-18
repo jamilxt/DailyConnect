@@ -1,9 +1,8 @@
-package dev.jamilxt.dailytasktracking.servie;
+package dev.jamilxt.dailyconnect.servie;
 
-import dev.jamilxt.dailytasktracking.model.ChatMessage;
+import dev.jamilxt.dailyconnect.model.ChatMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

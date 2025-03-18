@@ -1,4 +1,4 @@
-package dev.jamilxt.dailytasktracking.controller.rest;
+package dev.jamilxt.dailyconnect.controller.rest;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

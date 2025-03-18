@@ -1,13 +1,13 @@
-package dev.jamilxt.dailytasktracking;
+package dev.jamilxt.dailyconnect;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DailyTaskTrackingApplication {
+public class DailyConnectApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DailyTaskTrackingApplication.class, args);
+        SpringApplication.run(DailyConnectApplication.class, args);
     }
 
 }

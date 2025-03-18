@@ -1,4 +1,4 @@
-package dev.jamilxt.dailytasktracking.model;
+package dev.jamilxt.dailyconnect.model;
 
 import java.time.LocalDateTime;
 

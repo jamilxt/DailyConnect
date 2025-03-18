@@ -1,10 +1,8 @@
-package dev.jamilxt.dailytasktracking.servie;
+package dev.jamilxt.dailyconnect.servie;
 
-import dev.jamilxt.dailytasktracking.model.WordApiResponse;
-import dev.jamilxt.dailytasktracking.model.WordDefinition;
+import dev.jamilxt.dailyconnect.model.WordDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

@@ -1,7 +1,7 @@
-package dev.jamilxt.dailytasktracking.controller.web;
+package dev.jamilxt.dailyconnect.controller.web;
 
-import dev.jamilxt.dailytasktracking.model.ChatMessage;
-import dev.jamilxt.dailytasktracking.servie.ChatService;
+import dev.jamilxt.dailyconnect.model.ChatMessage;
+import dev.jamilxt.dailyconnect.servie.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

@@ -1,4 +1,4 @@
-package dev.jamilxt.dailytasktracking.model;
+package dev.jamilxt.dailyconnect.model;
 
 public class WordDefinition {
     private String word;

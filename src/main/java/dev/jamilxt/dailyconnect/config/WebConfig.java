@@ -1,4 +1,4 @@
-package dev.jamilxt.dailytasktracking.config;
+package dev.jamilxt.dailyconnect.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
