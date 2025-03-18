@@ -3,63 +3,158 @@
 <head>
     <title>Resume Builder - DailyConnect</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        .section { border: 1px solid #e5e7eb; padding: 10px; margin-bottom: 10px; background-color: white; }
+        .preview { border: 1px solid #e5e7eb; padding: 10px; height: 500px; overflow-y: auto; }
+        .draggable { cursor: move; }
+        .tip { font-style: italic; color: #6b7280; font-size: 0.875rem; }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans">
 <div th:replace="fragments/sidebar :: sidebar"></div>
 <div class="p-4 md:ml-64 transition-all duration-300">
     <h1 class="text-2xl font-bold mb-4">Resume Builder</h1>
 
-    <!-- Update Portfolio Form -->
-    <div class="bg-white p-4 rounded shadow mb-4">
-        <h2 class="text-xl font-semibold mb-2">Update Your Portfolio</h2>
-        <form th:action="@{/resume/update}" method="post" class="flex flex-col space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="e.g., Jamilur Rahman" class="p-2 border rounded w-full text-sm" required />
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" th:value="${portfolio.email}" placeholder="e.g., jamilxt@gmail.com" class="p-2 border rounded w-full text-sm" required />
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Phone</label>
-                <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="e.g., +8801623573153" class="p-2 border rounded w-full text-sm" required />
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Intro</label>
-                <textarea name="intro" th:text="${portfolio.intro}" placeholder="e.g., I'm a backend engineer with 5+ years of experience..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Skills</label>
-                <textarea name="skills" th:text="${portfolio.skills}" placeholder="e.g., Programming Language: Java, Kotlin, JavaScript, PHP\nDatabase: MSSQL, MySQL, PostgreSQL, SQLite\nCloud: Azure (VM, Spring Cloud, Azure DevOps)\nFramework: Spring Boot, React, Angular" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Professional Experience</label>
-                <textarea name="professionalExperience" th:text="${portfolio.professionalExperience}" placeholder="e.g., Brain Station 23 Ltd.\nSr. Software Engineer\nJul 2023 - present\nSoftware Engineer\nJan 2022 - Jun 2023" class="p-2 border rounded w-full h-32 text-sm" required></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Projects</label>
-                <textarea name="projects" th:text="${portfolio.projects}" placeholder="e.g., Fleet Management System\nOct 2020 - present\nTechnologies: Spring Boot, Azure Spring Cloud, MSSQL, Redis\nRole: Worked as a Backend Engineer..." class="p-2 border rounded w-full h-32 text-sm" required></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Education</label>
-                <textarea name="education" th:text="${portfolio.education}" placeholder="e.g., Diploma in Computer Technology\n2014 - 2018 | Chittagong, Bangladesh\nBangladesh Sweden Polytechnic Institute" class="p-2 border rounded w-full h-24 text-sm" required></textarea>
-            </div>
-            <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Update</button>
-        </form>
+    <!-- Editor Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-xl font-semibold mb-2">Build Your Resume</h2>
+            <form th:action="@{/resume/update}" method="post" id="resumeForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" name="fullName" th:value="${portfolio.fullName}" placeholder="e.g., Jamilur Rahman" class="p-2 border rounded w-full text-sm" required />
+                    <p class="tip">Enter your full name as it appears on professional documents.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" th:value="${portfolio.email}" placeholder="e.g., jamilxt@gmail.com" class="p-2 border rounded w-full text-sm" required />
+                    <p class="tip">Use a professional email address.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="text" name="phone" th:value="${portfolio.phone}" placeholder="e.g., +8801623573153" class="p-2 border rounded w-full text-sm" required />
+                    <p class="tip">Include your country code (e.g., +880).</p>
+                </div>
+
+                <!-- Draggable Sections -->
+                <div id="sections" class="space-y-4">
+                    <div class="section draggable">
+                        <label class="block text-sm font-medium text-gray-700">Intro</label>
+                        <textarea name="intro" th:text="${portfolio.intro}" placeholder="e.g., I'm a backend engineer with 5+ years of experience..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+                        <p class="tip">Write a brief summary of your skills and experience (100-150 words).</p>
+                    </div>
+                    <div class="section draggable">
+                        <label class="block text-sm font-medium text-gray-700">Skills</label>
+                        <textarea name="skills" th:text="${portfolio.skills}" placeholder="e.g., Programming Language: Java, Kotlin, JavaScript..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+                        <p class="tip">List your technical and soft skills in categories (e.g., Programming, Cloud).</p>
+                    </div>
+                    <div class="section draggable">
+                        <label class="block text-sm font-medium text-gray-700">Professional Experience</label>
+                        <textarea name="professionalExperience" th:text="${portfolio.professionalExperience}" placeholder="e.g., Brain Station 23 Ltd.\nSr. Software Engineer\nJul 2023 - present" class="p-2 border rounded w-full h-32 text-sm" required></textarea>
+                        <p class="tip">Include job titles, companies, and dates in reverse chronological order.</p>
+                    </div>
+                    <div class="section draggable">
+                        <label class="block text-sm font-medium text-gray-700">Projects</label>
+                        <textarea name="projects" th:text="${portfolio.projects}" placeholder="e.g., Fleet Management System\nOct 2020 - present\nTechnologies: Spring Boot..." class="p-2 border rounded w-full h-32 text-sm" required></textarea>
+                        <p class="tip">Detail key projects with technologies and your role.</p>
+                    </div>
+                    <div class="section draggable">
+                        <label class="block text-sm font-medium text-gray-700">Education</label>
+                        <textarea name="education" th:text="${portfolio.education}" placeholder="e.g., Diploma in Computer Technology\n2014 - 2018..." class="p-2 border rounded w-full h-24 text-sm" required></textarea>
+                        <p class="tip">List degrees, institutions, and graduation years.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Template</label>
+                    <select name="template" id="templateSelect" class="p-2 border rounded w-full text-sm">
+                        <option value="" disabled selected>Select Template</option>
+                        <option th:each="template : ${templates}" th:value="${template}" th:text="${template}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Color</label>
+                    <select name="color" id="colorSelect" class="p-2 border rounded w-full text-sm">
+                        <option value="" disabled selected>Select Color</option>
+                        <option th:each="color : ${colors}" th:value="${color}" th:text="${color}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Font</label>
+                    <select name="font" id="fontSelect" class="p-2 border rounded w-full text-sm">
+                        <option value="" disabled selected>Select Font</option>
+                        <option th:each="font : ${fonts}" th:value="${font}" th:text="${font}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full text-sm">Update & Preview</button>
+            </form>
+        </div>
+
+        <!-- Live Preview Section -->
+        <div class="bg-white p-4 rounded shadow preview" id="preview">
+            <h2 class="text-xl font-semibold mb-2">Live Preview</h2>
+            <div id="previewContent"></div>
+        </div>
     </div>
 
     <!-- Export Resume Section -->
-    <div class="bg-white p-4 rounded shadow">
+    <div class="bg-white p-4 rounded shadow mt-4">
         <h2 class="text-xl font-semibold mb-2">Export Resume</h2>
         <form th:action="@{/resume/export}" method="get" class="flex space-x-2">
             <select name="template" class="p-2 border rounded text-sm">
                 <option value="" disabled selected>Select Template</option>
                 <option th:each="template : ${templates}" th:value="${template}" th:text="${template}"></option>
             </select>
-            <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 text-sm">Export as PDF</button>
+            <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 text-sm">Export as PDF (Free)</button>
         </form>
+        <p class="text-sm text-gray-600 mt-2">Your first resume is free forever, with no watermarks or hidden fees.</p>
     </div>
 </div>
+
+<script>
+    // Initialize SortableJS for drag-and-drop
+    new Sortable(document.getElementById('sections'), {
+        animation: 150,
+        onEnd: function (evt) {
+            updatePreview();
+        }
+    });
+
+    // Live Preview
+    function updatePreview() {
+        const form = document.getElementById('resumeForm');
+        const preview = document.getElementById('previewContent');
+        let html = `<h3 style="text-align: center; font-size: 18px; font-weight: bold;">${form.fullName.value}</h3>`;
+        html += `<p style="text-align: center;">Email: ${form.email.value} | Phone: ${form.phone.value}</p>`;
+        html += '<hr>';
+
+        document.querySelectorAll('#sections .section').forEach(section => {
+            const label = section.querySelector('label').textContent.replace(':', '');
+            const textarea = section.querySelector('textarea');
+            if (textarea.value.trim()) {
+                html += `<h4 style="font-size: 14px; font-weight: bold;">${label}</h4>`;
+                html += `<p>${textarea.value.replace(/\n/g, '<br>')}</p>`;
+                html += '<hr>';
+            }
+        });
+
+        const template = document.getElementById('templateSelect').value;
+        const color = document.getElementById('colorSelect').value || 'black';
+        const font = document.getElementById('fontSelect').value || 'Arial';
+        preview.innerHTML = `<div style="color: ${color}; font-family: ${font};">${html}</div>`;
+    }
+
+    // Update preview on input change
+    document.querySelectorAll('#resumeForm input, #resumeForm textarea, #resumeForm select').forEach(element => {
+        element.addEventListener('input', updatePreview);
+    });
+    document.querySelectorAll('#templateSelect, #colorSelect, #fontSelect').forEach(element => {
+        element.addEventListener('change', updatePreview);
+    });
+
+    // Initial preview
+    updatePreview();
+</script>
 </body>
 </html>

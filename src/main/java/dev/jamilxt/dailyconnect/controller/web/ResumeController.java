@@ -36,8 +36,12 @@ public class ResumeController {
         Optional<Portfolio> portfolioOptional = portfolioService.getPortfolioByUsername(username);
         Portfolio portfolio = portfolioOptional.orElse(new Portfolio());
         List<String> templates = Arrays.asList("Modern", "Classic", "Creative");
+        List<String> colors = Arrays.asList("blue", "green", "red", "gray"); // Customizable colors
+        List<String> fonts = Arrays.asList("Arial", "Helvetica", "Times New Roman"); // Customizable fonts
         model.addAttribute("portfolio", portfolio);
         model.addAttribute("templates", templates);
+        model.addAttribute("colors", colors);
+        model.addAttribute("fonts", fonts);
         return "resume";
     }
 
@@ -82,57 +86,41 @@ public class ResumeController {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        // Customize based on template
+        // ATS-friendly single-column layout
+        document.setMargins(20, 20, 20, 20); // Consistent margins
         switch (template) {
             case "Modern":
-                document.add(new Paragraph(new Text(portfolio.getFullName()).setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph(new Text(portfolio.getFullName()).setFontSize(18).setBold()).setTextAlignment(TextAlignment.CENTER));
                 document.add(new Paragraph("Email: " + portfolio.getEmail() + " | Phone: " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("\n")); // Spacer
-                document.add(new Paragraph("Intro").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getIntro()));
-                document.add(new Paragraph("Skills").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getSkills()));
-                document.add(new Paragraph("Professional Experience").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getProfessionalExperience()));
-                document.add(new Paragraph("Projects").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getProjects()));
-                document.add(new Paragraph("Education").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getEducation()));
+                document.add(new Paragraph("\n"));
+                addSection(document, "Intro", portfolio.getIntro());
+                addSection(document, "Skills", portfolio.getSkills());
+                addSection(document, "Professional Experience", portfolio.getProfessionalExperience());
+                addSection(document, "Projects", portfolio.getProjects());
+                addSection(document, "Education", portfolio.getEducation());
                 break;
             case "Classic":
-                document.add(new Paragraph(new Text("Curriculum Vitae").setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph(portfolio.getFullName()).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph(new Text("Curriculum Vitae").setFontSize(18).setBold()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph(portfolio.getFullName()).setTextAlignment(TextAlignment.CENTER));
                 document.add(new Paragraph("Contact: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("\n")); // Spacer
-                document.add(new Paragraph("Introduction").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getIntro()));
-                document.add(new Paragraph("Technical Skills").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getSkills()));
-                document.add(new Paragraph("Work Experience").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getProfessionalExperience()));
-                document.add(new Paragraph("Key Projects").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getProjects()));
-                document.add(new Paragraph("Education").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getEducation()));
+                document.add(new Paragraph("\n"));
+                addSection(document, "Introduction", portfolio.getIntro());
+                addSection(document, "Technical Skills", portfolio.getSkills());
+                addSection(document, "Work Experience", portfolio.getProfessionalExperience());
+                addSection(document, "Key Projects", portfolio.getProjects());
+                addSection(document, "Education", portfolio.getEducation());
                 break;
             case "Creative":
-                document.add(new Paragraph(new Text("My Professional Journey").setFontSize(20).setBold()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("I am " + portfolio.getFullName()).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph(new Text("My Professional Journey").setFontSize(18).setBold()).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("I am " + portfolio.getFullName()).setTextAlignment(TextAlignment.CENTER));
                 document.add(new Paragraph("Reach me at: " + portfolio.getEmail() + " | " + portfolio.getPhone()).setTextAlignment(TextAlignment.CENTER));
-                document.add(new Paragraph("\n")); // Spacer
-                document.add(new Paragraph("About Me").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getIntro()));
-                document.add(new Paragraph("My Expertise").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getSkills()));
-                document.add(new Paragraph("My Career Path").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getProfessionalExperience()));
-                document.add(new Paragraph("Projects I’ve Built").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getProjects()));
-                document.add(new Paragraph("My Education").setFontSize(14).setBold());
-                document.add(new Paragraph(portfolio.getEducation()));
+                document.add(new Paragraph("\n"));
+                addSection(document, "About Me", portfolio.getIntro());
+                addSection(document, "My Expertise", portfolio.getSkills());
+                addSection(document, "My Career Path", portfolio.getProfessionalExperience());
+                addSection(document, "Projects I’ve Built", portfolio.getProjects());
+                addSection(document, "My Education", portfolio.getEducation());
                 break;
-            default:
-                document.add(new Paragraph("Invalid template selected."));
         }
 
         document.close();
@@ -144,5 +132,14 @@ public class ResumeController {
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
+    }
+
+    private void addSection(Document document, String title, String content) {
+        document.add(new Paragraph(title).setFontSize(14).setBold());
+        String[] lines = content.split("\n");
+        for (String line : lines) {
+            document.add(new Paragraph(line.trim()).setFontSize(12));
+        }
+        document.add(new Paragraph("\n"));
     }
 }
