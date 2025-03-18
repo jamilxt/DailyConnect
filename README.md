@@ -1,3 +1,4 @@
+[![Java CI with Maven](https://github.com/jamilxt/DailyConnect/actions/workflows/maven.yml/badge.svg)](https://github.com/jamilxt/DailyConnect/actions/workflows/maven.yml)
 # DailyConnect
 
 DailyConnect is a Spring Boot web application designed to facilitate real-time communication, task tracking, and daily inspiration for users. It features a responsive UI, secure authentication, and WebSocket-based chat functionality, making it ideal for teams or individuals looking to stay connected and organized.
