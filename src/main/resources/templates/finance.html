@@ -3,6 +3,20 @@
 <head>
     <title>Personal Finance Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .chart-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Prevent overflow */
+        }
+        #financeChart {
+            max-height: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            width: 100% !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans">
 <div th:replace="fragments/sidebar :: sidebar"></div>
@@ -51,10 +65,10 @@
     <!-- Chart Section -->
     <div class="bg-white p-4 rounded shadow mb-4 h-96">
         <h2 class="text-xl font-semibold mb-2">Spending by Category</h2>
-        <div class="relative w-full h-full">
-            <canvas id="financeChart" class="w-full h-full"></canvas>
+        <div class="chart-container" style="height: 320px; width: 100%;">
+            <canvas id="financeChart" th:if="${!#lists.isEmpty(transactions)}" style="height: 320px; width: 100%;"></canvas>
         </div>
-        <p id="noDataMessage" class="text-center text-gray-500 mt-2 hidden">No expense data available yet.</p>
+        <p id="noDataMessage" class="text-center text-gray-500 mt-2" th:unless="${!#lists.isEmpty(transactions)}">No expense data available yet.</p>
     </div>
 
     <!-- Transaction List -->
@@ -106,45 +120,36 @@
         });
         console.log('Category Totals:', categoryTotals);
 
-        const labels = Object.keys(categoryTotals).length > 0 ? Object.keys(categoryTotals) : ['No Data'];
-        const data = Object.values(categoryTotals).length > 0 ? Object.values(categoryTotals) : [1];
-        console.log('Chart Labels:', labels);
-        console.log('Chart Data:', data);
+        const labels = Object.keys(categoryTotals);
+        const data = Object.values(categoryTotals);
 
-        const ctx = document.getElementById('financeChart').getContext('2d');
+        const ctx = document.getElementById('financeChart')?.getContext('2d');
         const noDataMessage = document.getElementById('noDataMessage');
 
-        // Check if Chart.js is available
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js not loaded!');
-            return;
-        }
-
-        // Always create a new chart instance
-        try {
-            const chart = new Chart(ctx, {
+        if (ctx && labels.length > 0) {
+            new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: labels[0] === 'No Data' ? ['#E5E7EB'] : ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false
+                    responsive: false, // Disable auto-resizing
+                    maintainAspectRatio: false,
+                    height: 320, // Match container height
+                    width: '100%', // Match container width
+                    layout: {
+                        padding: 10
+                    }
                 }
             });
-            console.log('Chart initialized with data:', data);
-        } catch (e) {
-            console.error('Chart initialization failed:', e);
-        }
-
-        if (labels[0] === 'No Data') {
-            noDataMessage.classList.remove('hidden');
-        } else {
-            noDataMessage.classList.add('hidden');
+            console.log('Chart initialized with labels:', labels, 'and data:', data);
+        } else if (noDataMessage) {
+            noDataMessage.style.display = 'block';
+            console.log('No expense data to display or canvas not found.');
         }
     });
 </script>
